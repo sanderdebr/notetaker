@@ -3,7 +3,7 @@ import React, { Component } from "react";
 
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { loginUser } from "../actions";
+import { loginUser, loginWithProvider } from "../actions";
 
 // reactstrap components
 import {
@@ -25,6 +25,7 @@ import {
 // core components
 import MainNavbar from "components/Navbars/MainNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
+import { UncontrolledAlert } from "reactstrap";
 
 class Login extends React.Component {
 
@@ -45,9 +46,15 @@ class Login extends React.Component {
     dispatch(loginUser(email, password));
   };
 
-  render() {
-    const { classes, loginError, isAuthenticated } = this.props;
+  handleProvider = method => {
+    const { dispatch } = this.props;
+    dispatch(loginWithProvider(method))
+  }
 
+
+  render() {
+    const { loginError, isAuthenticated } = this.props;
+    
     if (isAuthenticated) {
       return <Redirect to="/Home" />;
     } else { 
@@ -79,8 +86,7 @@ class Login extends React.Component {
                           <Button
                             className="btn-neutral btn-icon"
                             color="default"
-                            href="#pablo"
-                            onClick={e => e.preventDefault()}
+                            onClick={() => this.handleProvider('github')}
                           >
                             <span className="btn-inner--icon mr-1">
                               <img
@@ -161,11 +167,14 @@ class Login extends React.Component {
                             </Button>
                           </div>
                           {loginError && (
-                              <div className="text-center">
-                                <small style={{color: 'red'}}>
-                                  Incorrect email or password.
-                                </small>
-                              </div>
+                              <UncontrolledAlert color="danger" fade={false} style={{position: 'absolute', width: '100%'}}>
+                              <span className="alert-inner--icon">
+                                <i className="ni ni-bell-55" />
+                              </span>
+                              <span className="alert-inner--text ml-1">
+                                <strong>Error</strong> Incorrect email or password.
+                              </span>
+                            </UncontrolledAlert>
                             )}
                         </Form>
                       </CardBody>

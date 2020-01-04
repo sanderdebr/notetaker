@@ -1,3 +1,4 @@
+import firebase from "firebase/app";
 import { myFirebase } from "../Firebase/firebase";
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
@@ -97,5 +98,24 @@ export const verifyAuth = () => dispatch => {
         dispatch(receiveLogin(user));
       }
       dispatch(verifySuccess());
+    });
+};
+
+export const loginWithProvider = (method) => dispatch => {
+  
+  if (method === 'github') {
+    var provider = new firebase.auth.GithubAuthProvider();
+  }
+
+  dispatch(requestLogin());
+  myFirebase
+    .auth()
+    .signInWithPopup(provider)
+    .then(user => {
+      dispatch(receiveLogin(user));
+    })
+    .catch(error => {
+      //Do something with the error if you want!
+      dispatch(loginError());
     });
 };

@@ -92,7 +92,7 @@ class MainNavbar extends React.Component {
                       color="default"
                     >
                       <span className="btn-inner--icon">
-                        <i className="ni ni-check-bold" />
+                        <i className="ni ni-fat-add" />
                       </span>
                       <span className="nav-link-inner--text ml-1">
                         Sign up

@@ -1,21 +1,8 @@
-/*!
-
-=========================================================
-* Argon Design System React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-design-system-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-design-system-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
+
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { registerUser, registerWithProvider } from "../actions";
 
 // reactstrap components
 import {
@@ -37,16 +24,40 @@ import {
 // core components
 import MainNavbar from "components/Navbars/MainNavbar.jsx";
 import SimpleFooter from "components/Footers/SimpleFooter.jsx";
+import { UncontrolledAlert } from "reactstrap";
 
 class Register extends React.Component {
   
-  componentDidMount() {
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-    this.refs.main.scrollTop = 0;
+  state = { email: "", password: "" };
+
+  handleEmailChange = ({ target }) => {
+    this.setState({ email: target.value });
+  };
+
+  handlePasswordChange = ({ target }) => {
+    this.setState({ password: target.value });
+  };
+
+  handleSubmit = () => {
+    const { dispatch } = this.props;
+    const { email, password } = this.state;
+
+    dispatch(registerUser(email, password));
+
+  };
+
+  handleProvider = method => {
+    const { dispatch } = this.props;
+    dispatch(registerWithProvider(method))
   }
 
   render() {
+    const { registerError, isAuthenticated } = this.props;
+
+    if (isAuthenticated) {
+      return <Redirect to="/Home" />;
+    }
+
     return (
       <>
         <MainNavbar />
@@ -75,7 +86,7 @@ class Register extends React.Component {
                           className="btn-neutral btn-icon mr-4"
                           color="default"
                           href="#pablo"
-                          onClick={e => e.preventDefault()}
+                          onClick={() => this.handleProvider('github')}
                         >
                           <span className="btn-inner--icon mr-1">
                             <img
@@ -110,20 +121,15 @@ class Register extends React.Component {
                           <InputGroup className="input-group-alternative mb-3">
                             <InputGroupAddon addonType="prepend">
                               <InputGroupText>
-                                <i className="ni ni-hat-3" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input placeholder="Name" type="text" />
-                          </InputGroup>
-                        </FormGroup>
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative mb-3">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
                                 <i className="ni ni-email-83" />
                               </InputGroupText>
                             </InputGroupAddon>
-                            <Input placeholder="Email" type="email" />
+                            <Input 
+                              placeholder="Email" 
+                              type="email" 
+                              name="email" 
+                              onChange={this.handleEmailChange}
+                            />
                           </InputGroup>
                         </FormGroup>
                         <FormGroup>
@@ -137,6 +143,8 @@ class Register extends React.Component {
                               placeholder="Password"
                               type="password"
                               autoComplete="off"
+                              name="password" 
+                              onChange={this.handlePasswordChange}
                             />
                           </InputGroup>
                         </FormGroup>
@@ -178,9 +186,20 @@ class Register extends React.Component {
                             className="mt-4"
                             color="primary"
                             type="button"
+                            onClick={this.handleSubmit}
                           >
                             Create account
                           </Button>
+                          {registerError && (
+                            <UncontrolledAlert color="danger" fade={false} style={{position: 'absolute', width: '100%'}}>
+                              <span className="alert-inner--icon">
+                                <i className="ni ni-bell-55" />
+                              </span>
+                              <span className="alert-inner--text ml-1">
+                                <strong>Error</strong> Incorrect email or password.
+                              </span>
+                            </UncontrolledAlert>
+                          )}
                         </div>
                       </Form>
                     </CardBody>
@@ -196,4 +215,13 @@ class Register extends React.Component {
   }
 }
 
-export default Register;
+function mapStateToProps(state) {
+  return {
+    isRegistering: state.register.isRegistering,
+    registerError: state.register.registerError,
+    isRegistered: state.register.isRegistered,
+    isAuthenticated: state.auth.isAuthenticated
+  };
+}
+
+export default connect(mapStateToProps)(Register);
